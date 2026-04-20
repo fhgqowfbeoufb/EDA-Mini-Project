@@ -1,0 +1,107 @@
+"""
+Smart File Organizer
+Automatically sorts files in a folder into categorized subfolders.
+Usage: python file_organizer.py <folder_path>
+       python file_organizer.py  (uses current directory)
+"""
+
+import os
+import shutil
+import sys
+from datetime import datetime
+
+# ── Category definitions ──────────────────────────────────────────────────────
+CATEGORIES = {
+    "  Images":     [".jpg", ".jpeg", ".png", ".gif", ".bmp", ".svg", ".webp", ".ico"],
+    " Documents":   [".pdf", ".doc", ".docx", ".txt", ".ppt", ".pptx", ".xls", ".xlsx", ".odt"],
+    " Audio":       [".mp3", ".wav", ".aac", ".flac", ".ogg", ".m4a"],
+    " Videos":      [".mp4", ".mov", ".avi", ".mkv", ".wmv", ".flv", ".webm"],
+    "  Archives":   [".zip", ".rar", ".tar", ".gz", ".7z", ".bz2"],
+    " Code":        [".py", ".js", ".ts", ".html", ".css", ".java", ".cpp", ".c", ".json", ".xml", ".sh"],
+    "  Data":       [".csv", ".xlsx", ".sql", ".db", ".json", ".yaml", ".yml"],
+    " Fonts":       [".ttf", ".otf", ".woff", ".woff2"],
+    "  Executables":[".exe", ".msi", ".dmg", ".pkg", ".deb", ".apk"],
+}
+
+
+def get_category(extension: str) -> str:
+    ext = extension.lower()
+    for category, extensions in CATEGORIES.items():
+        if ext in extensions:
+            return category
+    return " Others"
+
+
+def organize(folder: str, dry_run: bool = False) -> dict:
+    """
+    Organize files in `folder`. If dry_run=True, only simulate (no moves).
+    Returns a summary dict.
+    """
+    if not os.path.isdir(folder):
+        print(f"  '{folder}' is not a valid directory.")
+        sys.exit(1)
+
+    summary = {}
+    moved = 0
+    skipped = 0
+
+    entries = [e for e in os.scandir(folder) if e.is_file()]
+
+    if not entries:
+        print("  No files found in the folder.")
+        return summary
+
+    print(f"\n{'DRY RUN — no files will be moved' if dry_run else 'Organizing files...'}")
+    print(f" Folder : {os.path.abspath(folder)}")
+    print(f" Files  : {len(entries)} found\n")
+    print("-" * 50)
+
+    for entry in entries:
+        _, ext = os.path.splitext(entry.name)
+        category = get_category(ext)
+
+        dest_dir = os.path.join(folder, category)
+        dest_path = os.path.join(dest_dir, entry.name)
+
+        # Handle duplicate filenames
+        if os.path.exists(dest_path):
+            base, extension = os.path.splitext(entry.name)
+            timestamp = datetime.now().strftime("%H%M%S")
+            dest_path = os.path.join(dest_dir, f"{base}_{timestamp}{extension}")
+
+        print(f"  {entry.name:<35} →  {category}")
+
+        if not dry_run:
+            os.makedirs(dest_dir, exist_ok=True)
+            shutil.move(entry.path, dest_path)
+
+        summary[category] = summary.get(category, 0) + 1
+        moved += 1
+
+    print("-" * 50)
+    print(f"\n {'Would move' if dry_run else 'Moved'} {moved} file(s)\n")
+
+    print(" Summary:")
+    for cat, count in sorted(summary.items()):
+        print(f"   {cat:<25}  {count} file(s)")
+
+    return summary
+
+
+def main():
+    args = sys.argv[1:]
+
+    # Parse optional --dry-run flag
+    dry_run = "--dry-run" in args
+    paths = [a for a in args if not a.startswith("--")]
+
+    folder = paths[0] if paths else "."
+
+    organize(folder, dry_run=dry_run)
+    print("\nDone! ")
+
+
+if __name__ == "__main__":
+    main()
+
+
