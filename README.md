@@ -1,34 +1,34 @@
-📂 Smart File Organizer
+Smart File Organizer
 A zero-dependency Python script to categorize files instantly.
 
-🚀 Features
-Auto-Sort: Groups files (Images, Docs, Code, etc.) into subfolders.
+Core Features
+Automatic Sorting: Groups files into subfolders (Images, Documents, Code, etc.) based on extension.
 
-Dry-Run: Use --dry-run to preview changes without moving files.
+Dry-Run Mode: Use the --dry-run flag to preview changes without moving any files.
 
-Safe: Renames duplicates with timestamps (no overwriting).
+Duplicate Protection: Prevents overwriting by appending timestamps to filenames if a conflict is detected.
 
-Portable: Works on Windows, Mac, and Linux using only standard libraries.
+Cross-Platform: Compatible with Windows, macOS, and Linux using only the Python standard library.
 
-💻 Usage
-Current Folder: python organizer.py
+Usage Instructions
+Organize Current Folder: python organizer.py
 
-Specific Folder: python organizer.py /path/to/folder
+Organize Specific Folder: python organizer.py /path/to/folder
 
-Preview Only: python organizer.py --dry-run
+Preview Changes: python organizer.py --dry-run
 
-🛠️ Technical Specs
+Technical Specifications
 Language: Python 3.x
 
-Modules: os, shutil, sys, datetime
+Core Modules: os, shutil, sys, datetime
 
-Logic: Uses a dictionary to map extensions to 9+ categories.
+Methodology: Scans directories using os.scandir, maps extensions via a dictionary, and executes moves with shutil.move.
 
-Safety: os.makedirs(exist_ok=True) ensures folders exist before moving.
+Safety: Uses os.makedirs(exist_ok=True) to ensure destination directories exist before file operations begin.
 
-🔮 Future Ideas
-Undo: Log moves to a JSON file to reverse sorting.
+Future Roadmap
+Undo Functionality: Implement a JSON log to track and reverse file moves.
 
-Watchdog: Auto-sort files the moment they land in Downloads.
+Real-time Monitoring: Integrate the watchdog library to sort files as they are created.
 
-GUI: Add a simple "Select Folder" button using Tkinter.
+User Interface: Develop a simple graphical folder picker using the Tinker module.
